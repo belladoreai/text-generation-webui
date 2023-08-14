@@ -237,8 +237,13 @@ def generate_reply_HF(question, original_question, seed, state, stopping_strings
         if state[k] > 0:
             generate_params[k] = state[k] * 1e-4
 
+    generate_params['suppress_tokens'] = [] if 'suppress_tokens' not in state else state['suppress_tokens']
+
+    if 'begin_suppress_tokens' in state:
+        generate_params['begin_suppress_tokens'] = state['begin_suppress_tokens']
+
     if state['ban_eos_token']:
-        generate_params['suppress_tokens'] = [shared.tokenizer.eos_token_id]
+        generate_params['suppress_tokens'].append(shared.tokenizer.eos_token_id)
 
     if shared.args.no_cache:
         generate_params.update({'use_cache': False})
@@ -262,7 +267,7 @@ def generate_reply_HF(question, original_question, seed, state, stopping_strings
     eos_token_ids = [shared.tokenizer.eos_token_id] if shared.tokenizer.eos_token_id is not None else []
     generate_params['eos_token_id'] = eos_token_ids
     generate_params['stopping_criteria'] = transformers.StoppingCriteriaList()
-    generate_params['stopping_criteria'].append(_StopEverythingStoppingCriteria());
+    generate_params['stopping_criteria'].append(_StopEverythingStoppingCriteria())
 
     t0 = time.time()
     try:
