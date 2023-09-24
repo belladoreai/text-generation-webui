@@ -23,6 +23,52 @@ except:
         logger.error("Could not find repositories/exllama/. Make sure that exllama is cloned inside repositories/ and is up to date.")
         raise
 
+def not_emoji_token(tokenId):
+    # Byte level tokens are [3, 258] (we exclude 13 because it's linebreak)
+    # High tokens (after 30245) are weird characters, including some emojis
+    # Note that we treat high tokens similar as byte level tokens even though one high token maps to one emoji, whereas 4 byte tokens typically maps to one emoji (this is ugly but what do u do)
+    return tokenId <= 2 or tokenId == 13 or (tokenId >= 259 and tokenId < 30245)
+
+def get_emoji_penalty(seq):
+    if len(seq) < 20:
+        # Just a safety check, all sequences should in practice be larger than this
+        return 1
+    if not_emoji_token(seq[-1]) and not_emoji_token(seq[-2]):
+        # Last 2 tokens are not emoji tokens, so we are not inside emoji repetition sequence
+        return 1
+
+    # Count consecutive byte tokens at the end (allowing last token to be non byte token, but stopping count when encountering the next non byte token)
+    byte_token_count = 0 if not_emoji_token(seq[-1]) else 1
+    i = -2
+    while (i > -20):
+        if not_emoji_token(seq[i]):
+            break
+        byte_token_count += 1
+        i -= 1
+
+    if byte_token_count < 4:
+        # Most emojis need 4 byte tokens to complete, so allow the current emoji to be completed
+        return 1
+    if not_emoji_token(seq[-1]):
+        # The last token ended a sequence of byte tokens, apply heavy penalty to prevent patterns like emoji-space-emoji-space...
+        return 0.1
+
+    # In the remaining cases last token is byte level token
+    if byte_token_count == 4:
+        # We probably completed an emoji, apply penalty to reduce probability of starting another emoji
+        return 0.95
+    if byte_token_count < 8:
+        # We are probably in the middle of constructing a second consecutive emoji, allow it to complete
+        return 1
+    if byte_token_count == 8:
+        # We probably completed second consecutive emoji, apply penalty to reduce probability of starting another emoji
+        return 0.9
+    if byte_token_count < 12:
+        # We MIGHT be in the middle of constructing third consecutive emoji, but not all emojis need exactly 4 byte tokens, so maybe not
+        return 0.95
+    
+    # If we have a byte sequence this long, we don't really care about completing emojis, just stop already.
+    return 0.1
 
 class ExllamaHF(PreTrainedModel):
     def __init__(self, config: ExLlamaConfig):
@@ -122,6 +168,19 @@ class ExllamaHF(PreTrainedModel):
             # Enable model parallelism
             shift_labels = shift_labels.to(shift_logits.device)
             loss = loss_fct(shift_logits, shift_labels)
+
+        # Custom sampler to reduce repetitive emoji runoffs
+        emoji_penalty = get_emoji_penalty(seq)
+        if emoji_penalty != 1:
+            def apply_penalty(logits_slice):
+                positive_mask = logits_slice > 0
+                negative_mask = logits_slice < 0
+                logits_slice[positive_mask] *= emoji_penalty
+                logits_slice[negative_mask] /= emoji_penalty
+
+            apply_penalty(logits[0, 0, 3:13])
+            apply_penalty(logits[0, 0, 14:259])
+            apply_penalty(logits[0, 0, 30245:32000])
 
         return CausalLMOutputWithPast(logits=logits, past_key_values=seq if use_cache else None, loss=loss)
 
