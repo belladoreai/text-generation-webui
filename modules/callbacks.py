@@ -2,6 +2,7 @@ import gc
 import traceback
 from queue import Queue
 from threading import Thread
+from modules.logging_colors import logger
 
 import torch
 import transformers
@@ -57,6 +58,9 @@ class Iteratorize:
             except ValueError:
                 pass
             except:
+                logger.error('gentask errored with the following kwargs:')
+                logger.error(str(self.kwargs))
+                logger.error(str(self.kwargs['inputs'][0].tolist()))
                 traceback.print_exc()
                 pass
 
