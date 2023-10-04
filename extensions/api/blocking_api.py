@@ -14,6 +14,7 @@ from modules.text_generation import (
     stop_everything_event
 )
 from modules.utils import get_available_models
+from modules.logging_colors import logger
 
 
 def get_model_info():
@@ -204,6 +205,7 @@ def _run_server(port: int, share: bool = False, tunnel_id=str):
 
     def on_start(public_url: str):
         print(f'Starting non-streaming server at public url {public_url}/api')
+        logger.info(f'Starting non-streaming server at public url {public_url}/api')
 
     if share:
         try:

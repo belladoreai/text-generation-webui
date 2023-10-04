@@ -11,9 +11,9 @@ from modules import shared
 from modules.chat import generate_chat_reply
 from modules.text_generation import generate_reply
 from websockets.server import serve
+from modules.logging_colors import logger
 
 PATH = '/api/v1/stream'
-
 
 @with_api_lock
 async def _handle_stream_message(websocket, message):
@@ -108,6 +108,7 @@ def _run_server(port: int, share: bool = False, tunnel_id=str):
     def on_start(public_url: str):
         public_url = public_url.replace('https://', 'wss://')
         print(f'Starting streaming server at public url {public_url}{PATH}')
+        logger.info(f'Starting streaming server at public url {public_url}{PATH}')
 
     if share:
         try:
