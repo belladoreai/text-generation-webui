@@ -51,24 +51,24 @@ def get_emoji_penalty(seq):
         return 1
     if not_emoji_token(seq[-1]):
         # The last token ended a sequence of byte tokens, apply heavy penalty to prevent patterns like emoji-space-emoji-space...
-        return 0.1
+        return 0.01
 
     # In the remaining cases last token is byte level token
     if byte_token_count == 4:
         # We probably completed an emoji, apply penalty to reduce probability of starting another emoji
-        return 0.95
+        return 0.98
     if byte_token_count < 8:
         # We are probably in the middle of constructing a second consecutive emoji, allow it to complete
         return 1
     if byte_token_count == 8:
         # We probably completed second consecutive emoji, apply penalty to reduce probability of starting another emoji
-        return 0.9
+        return 0.95
     if byte_token_count < 12:
         # We MIGHT be in the middle of constructing third consecutive emoji, but not all emojis need exactly 4 byte tokens, so maybe not
-        return 0.95
+        return 0.97
     
     # If we have a byte sequence this long, we don't really care about completing emojis, just stop already.
-    return 0.1
+    return 0.01
 
 class ExllamaHF(PreTrainedModel):
     def __init__(self, config: ExLlamaConfig):
