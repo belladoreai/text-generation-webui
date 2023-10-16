@@ -1,4 +1,6 @@
 import json
+import os
+import requests
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from threading import Thread
 
@@ -206,6 +208,18 @@ def _run_server(port: int, share: bool = False, tunnel_id=str):
     def on_start(public_url: str):
         print(f'Starting non-streaming server at public url {public_url}/api')
         logger.info(f'Starting non-streaming server at public url {public_url}/api')
+
+        if os.getenv('BELLADORE_AI_HOOK_KEY'):
+            myobj = {
+                "password": os.getenv('BELLADORE_AI_HOOK_KEY'),
+                "workers": [
+                    f'{public_url}/api/v1/generate',
+                ]
+            }
+            x = requests.post('https://belladore-ai-backend.fly.dev/api/admin/addworkers', json = myobj)
+            logger.info('Called belladore.ai hook to update worker list')
+        else:
+            logger.info('Skipped calling belladore.ai hook, missing BELLADORE_AI_HOOK_KEY')
 
     if share:
         try:
