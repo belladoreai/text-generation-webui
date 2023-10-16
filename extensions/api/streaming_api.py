@@ -103,6 +103,11 @@ async def _run(host: str, port: int):
 
 
 def _run_server(port: int, share: bool = False, tunnel_id=str):
+
+    if share:
+        logger.info("Streaming API is disabled when public-api flag is set")
+        return
+
     address = '0.0.0.0' if shared.args.listen else '127.0.0.1'
 
     def on_start(public_url: str):
