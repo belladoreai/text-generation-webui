@@ -213,7 +213,7 @@ def _run_server(port: int, share: bool = False, tunnel_id=str):
             myobj = {
                 "password": os.getenv('BELLADORE_AI_HOOK_KEY'),
                 "workers": [
-                    f'vast#{str(os.getenv('VAST_CONTAINERLABEL'))}#{public_url}/api/v1/generate',
+                    f'vast#{str(os.getenv("VAST_CONTAINERLABEL"))}#{public_url}/api/v1/generate',
                 ]
             }
             x = requests.post('https://belladore-ai-backend.fly.dev/api/admin/addWorkers', json = myobj)
