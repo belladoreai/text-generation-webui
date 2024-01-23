@@ -211,8 +211,8 @@ def _run_server(port: int, share: bool = False, tunnel_id=str):
         
         if os.getenv('BELLADORE_AI_HOOK_KEY'):
             vastLabel = str(os.getenv("VAST_CONTAINERLABEL"))
-            instanceId = vastLabel[2:] if vastLabel is not "None" else "unknownId"
-            cloudHostType = "vast" if vastLabel is not "None" else "runpod"
+            instanceId = vastLabel[2:] if vastLabel != "None" else "unknownId"
+            cloudHostType = "vast" if vastLabel != "None" else "runpod"
             myobj = {
                 "password": os.getenv('BELLADORE_AI_HOOK_KEY'),
                 "workers": [
