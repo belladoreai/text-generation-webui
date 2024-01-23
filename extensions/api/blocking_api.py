@@ -210,11 +210,13 @@ def _run_server(port: int, share: bool = False, tunnel_id=str):
         logger.info(f'Starting non-streaming server at public url {public_url}/api')
         
         if os.getenv('BELLADORE_AI_HOOK_KEY'):
-            instanceId = str(os.getenv("VAST_CONTAINERLABEL"))[2:]
+            vastLabel = str(os.getenv("VAST_CONTAINERLABEL"))
+            instanceId = vastLabel[2:] if vastLabel is not "None" else "unknownId"
+            cloudHostType = "vast" if vastLabel is not "None" else "runpod"
             myobj = {
                 "password": os.getenv('BELLADORE_AI_HOOK_KEY'),
                 "workers": [
-                    f'vast#{instanceId}#{public_url}/api/v1/generate',
+                    f'${cloudHostType}#{instanceId}#{public_url}/api/v1/generate',
                 ]
             }
             x = requests.post('https://belladore-ai-backend.fly.dev/api/admin/addWorkers', json = myobj)
