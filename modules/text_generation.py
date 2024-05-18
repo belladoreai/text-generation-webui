@@ -402,6 +402,10 @@ def generate_reply_HF(question, original_question, seed, state, stopping_strings
         t1 = time.time()
         original_tokens = len(original_input_ids[0])
         new_tokens = len(output) - (original_tokens if not shared.is_seq2seq else 0)
+        if shared.args.verbose:
+            print(f'Generated text: {decode(output[-new_tokens:])}')
+            print(f'First tokens in output: {output[:5]}')
+            print(f'Last tokens in output: {output[-5:]}')
         print(f'Output generated in {(t1-t0):.2f} seconds ({new_tokens/(t1-t0):.2f} tokens/s, {new_tokens} tokens, context {original_tokens}, seed {seed})')
         return
 
