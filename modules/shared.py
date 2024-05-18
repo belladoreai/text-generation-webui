@@ -50,6 +50,7 @@ settings = {
     'prompt_lookup_num_tokens': 0,
     'custom_stopping_strings': '',
     'custom_token_bans': '',
+    'begin_suppress_tokens': '',
     'auto_max_new_tokens': False,
     'ban_eos_token': False,
     'add_bos_token': True,

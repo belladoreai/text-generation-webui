@@ -298,6 +298,9 @@ def generate_reply_HF(question, original_question, seed, state, stopping_strings
             else:
                 generate_params['suppress_tokens'] = to_ban
 
+    if 'begin_suppress_tokens' in state:
+        generate_params['begin_suppress_tokens'] = state['begin_suppress_tokens']
+
     generate_params.update({'use_cache': not shared.args.no_cache})
     if shared.args.deepspeed:
         generate_params.update({'synced_gpus': True})
