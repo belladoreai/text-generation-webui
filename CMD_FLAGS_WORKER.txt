@@ -1,0 +1,2 @@
+# These cmd flags are used when one_click.py is run with OOBA_WORKER_MODE environment variable set
+--verbose --api --public-api --model llama-3-8b-hermes-2-pro-8bpw-exl2

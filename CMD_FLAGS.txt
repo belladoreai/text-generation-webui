@@ -1,3 +1,4 @@
 # Only used by the one-click installer.
 # Example:
 # --listen --api
+--verbose --model llama-3-8b-hermes-2-pro-8bpw-exl2

@@ -25,7 +25,7 @@ script_dir = os.getcwd()
 conda_env_path = os.path.join(script_dir, "installer_files", "env")
 
 # Command-line flags
-cmd_flags_path = os.path.join(script_dir, "CMD_FLAGS.txt")
+cmd_flags_path = os.path.join(script_dir, "CMD_FLAGS_WORKER.txt") if "OOBA_WORKER_MODE" in os.environ else os.path.join(script_dir, "CMD_FLAGS.txt")
 if os.path.exists(cmd_flags_path):
     with open(cmd_flags_path, 'r') as f:
         CMD_FLAGS = ' '.join(line.strip().rstrip('\\').strip() for line in f if line.strip().rstrip('\\').strip() and not line.strip().startswith('#'))
