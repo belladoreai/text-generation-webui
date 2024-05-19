@@ -321,6 +321,7 @@ loaders_samplers = {
         'negative_prompt',
         'ban_eos_token',
         'custom_token_bans',
+        'begin_suppress_tokens',
         'sampler_priority',
         'add_bos_token',
         'skip_special_tokens',

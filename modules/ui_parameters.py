@@ -47,7 +47,7 @@ def create_ui(default_preset):
                                 shared.gradio['add_bos_token'] = gr.Checkbox(value=shared.settings['add_bos_token'], label='Add the bos_token to the beginning of prompts', info='Disabling this can make the replies more creative.')
                                 shared.gradio['custom_stopping_strings'] = gr.Textbox(lines=2, value=shared.settings["custom_stopping_strings"] or None, label='Custom stopping strings', info='Written between "" and separated by commas.', placeholder='"\\n", "\\nYou:"')
                                 shared.gradio['custom_token_bans'] = gr.Textbox(value=shared.settings['custom_token_bans'] or None, label='Token bans', info='Token IDs to ban, separated by commas. The IDs can be found in the Default or Notebook tab.')
-                                shared.gradio['begin_suppress_tokens'] = gr.Textbox(value=shared.settings['begin_suppress_tokens'] or None, label='Token bans for beginning only', info='Supported only with ExllamaV2_HF')
+                                shared.gradio['begin_suppress_tokens'] = gr.Textbox(value=shared.settings['begin_suppress_tokens'] or None, label='Token bans for beginning only', info='')
 
                             shared.gradio['penalty_alpha'] = gr.Slider(0, 5, value=generate_params['penalty_alpha'], label='penalty_alpha', info='For Contrastive Search. do_sample must be unchecked.')
                             shared.gradio['guidance_scale'] = gr.Slider(-0.5, 2.5, step=0.05, value=generate_params['guidance_scale'], label='guidance_scale', info='For CFG. 1.5 is a good value.')
