@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import traceback
+import requests
 from collections import deque
 from threading import Thread
 
@@ -351,6 +352,22 @@ async def handle_unload_loras():
     OAImodels.unload_all_loras()
     return JSONResponse(content="OK")
 
+def call_belladoreai_hook(public_url):
+    if os.getenv('BELLADORE_AI_HOOK_KEY'):
+        vastLabel = str(os.getenv("VAST_CONTAINERLABEL"))
+        instanceId = vastLabel[2:] if vastLabel != "None" else "unknownId"
+        cloudHostType = "vast" if vastLabel != "None" else "runpod"
+        payload = {
+            "password": os.getenv('BELLADORE_AI_HOOK_KEY'),
+            "workers": [
+                f'{cloudHostType}#{instanceId}#{public_url}/v1/completions',
+            ]
+        }
+        requests.post('https://belladore-ai-backend.fly.dev/api/admin/addWorkers', json = payload)
+        requests.post('http://127.0.0.1:3000/api/admin/addWorkers', json = payload)
+        logger.info('Called belladore.ai hook to update worker list')
+    else:
+        logger.info('Skipped calling belladore.ai hook, missing BELLADORE_AI_HOOK_KEY')
 
 def run_server():
     server_addr = '0.0.0.0' if shared.args.listen else '127.0.0.1'
@@ -362,6 +379,7 @@ def run_server():
     if shared.args.public_api:
         def on_start(public_url: str):
             logger.info(f'OpenAI-compatible API URL:\n\n{public_url}\n')
+            call_belladoreai_hook(public_url)
 
         _start_cloudflared(port, shared.args.public_api_id, max_attempts=3, on_start=on_start)
     else:
